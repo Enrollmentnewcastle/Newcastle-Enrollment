@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KOI Newcastle — Enrolment Checklist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#14264A;
+    --navy-deep:#0D1A36;
+    --slate:#3D4A63;
+    --paper:#F7F9FC;
+    --card:#FFFFFF;
+    --line:#DCE3EF;
+    --gold:#E8A03D;
+    --gold-soft:#FBF1DF;
+    --blue-soft:#EDF2FA;
+    --green:#1E7A46;
+    --green-soft:#E7F4EC;
+    --red:#C0392B;
+    --red-soft:#FBEAE8;
+    --radius:14px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    background:var(--paper);color:var(--slate);
+    line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:820px;margin:0 auto}
+
+  /* ---------- Header ---------- */
+  header{
+    background:linear-gradient(160deg,var(--navy) 0%,var(--navy-deep) 100%);
+    color:#fff;padding:42px 20px 88px;
+  }
+  .eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:12px}
+  h1{font-family:'Archivo',sans-serif;font-weight:800;font-size:clamp(26px,5vw,38px);line-height:1.15;letter-spacing:-.01em}
+  .head-meta{display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:14px;color:#C5D0E4;font-size:14px}
+  .head-meta b{color:#fff;font-weight:600}
+
+  /* ---------- Progress (sticky) ---------- */
+  .progress-shell{position:sticky;top:0;z-index:50;padding:0 20px;margin-top:-46px}
+  .progress{
+    max-width:820px;margin:0 auto;background:var(--card);
+    border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:0 6px 20px rgba(20,38,74,.10);
+    padding:14px 18px;display:flex;align-items:center;gap:16px;
+  }
+  .progress .count{font-family:'Archivo',sans-serif;font-weight:800;font-size:18px;color:var(--navy);white-space:nowrap}
+  .bar{flex:1;height:10px;background:var(--blue-soft);border-radius:999px;overflow:hidden}
+  .bar i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--gold),#D4882A);border-radius:999px;transition:width .4s ease}
+  .bar i.done{background:linear-gradient(90deg,#2E9D5C,var(--green))}
+  .progress .pct{font-size:13px;font-weight:600;color:#76849E;white-space:nowrap}
+
+  /* ---------- Steps ---------- */
+  main{padding:26px 20px 64px}
+  .stack{display:flex;flex-direction:column;gap:18px}
+
+  .step{
+    background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius);overflow:hidden;
+    box-shadow:0 1px 2px rgba(20,38,74,.05);
+    transition:border-color .3s ease;
+  }
+  .step.signed{border-color:#BBDFC9}
+
+  .step-head{display:flex;align-items:center;gap:16px;padding:18px 22px;border-bottom:1px solid var(--line)}
+  .step-num{
+    flex:none;width:42px;height:42px;border-radius:10px;
+    background:var(--navy);color:#fff;
+    font-family:'Archivo',sans-serif;font-weight:800;font-size:18px;
+    display:grid;place-items:center;
+  }
+  .step.signed .step-num{background:var(--green)}
+  .step-head h2{font-family:'Archivo',sans-serif;font-weight:700;font-size:18px;color:var(--navy);flex:1;line-height:1.3}
+  .tick{flex:none;font-size:13px;font-weight:600;color:var(--green);background:var(--green-soft);border-radius:999px;padding:5px 12px;display:none}
+  .step.signed .tick{display:inline-block}
+
+  .step-body{padding:20px 22px}
+  .step-body p{font-size:14.5px}
+  .step-body p + p{margin-top:8px}
+
+  /* form fields */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:620px){.grid{grid-template-columns:1fr}}
+  .field{display:flex;flex-direction:column;gap:5px}
+  .field label{font-size:13px;font-weight:600;color:var(--navy)}
+  .field input{
+    font:inherit;font-size:15px;padding:10px 12px;
+    border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--navy);
+    transition:border-color .2s ease;width:100%;
+  }
+  .field input:focus{outline:none;border-color:var(--navy)}
+  .field input.ok{border-color:var(--green);background:var(--green-soft)}
+  .field input.bad{border-color:var(--red);background:var(--red-soft)}
+  .hint{font-size:12px;color:#8B97AE}
+  .hint.err{color:var(--red);font-weight:500}
+  .mono{font-family:'JetBrains Mono',monospace;letter-spacing:.08em}
+
+  /* notes / panels */
+  .note{
+    display:flex;gap:12px;align-items:flex-start;
+    background:var(--gold-soft);border:1px solid #F0D9AE;
+    border-radius:12px;padding:13px 15px;font-size:13.5px;color:#6B4A14;margin-top:14px;
+  }
+  .note svg{flex:none;width:18px;height:18px;margin-top:2px;color:#B97E22}
+  .note b{color:#54390C}
+
+  .rules{
+    margin-top:14px;background:var(--blue-soft);border:1px solid var(--line);
+    border-radius:12px;padding:15px 17px;font-size:13.5px;
+  }
+  .rules h3{font-size:13px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+  .rules ul{list-style:none;display:flex;flex-direction:column;gap:7px}
+  .rules li{padding-left:22px;position:relative}
+  .rules li::before{
+    content:"";position:absolute;left:2px;top:7px;width:7px;height:7px;border-radius:50%;background:var(--gold);
+  }
+  .rules b{color:var(--navy)}
+
+  details.sanction{margin-top:12px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  details.sanction summary{
+    cursor:pointer;list-style:none;padding:12px 15px;
+    font-size:13.5px;font-weight:600;color:var(--navy);
+    display:flex;align-items:center;gap:8px;user-select:none;
+  }
+  details.sanction summary::-webkit-details-marker{display:none}
+  details.sanction summary::after{content:"+";margin-left:auto;font-family:'Archivo';font-weight:700;color:var(--gold)}
+  details.sanction[open] summary::after{content:"−"}
+  details.sanction .inner{padding:0 15px 14px;font-size:13.5px}
+  details.sanction .inner p+p{margin-top:7px}
+
+  /* buttons */
+  .btn{
+    display:inline-flex;align-items:center;gap:9px;
+    font:inherit;font-size:14px;font-weight:600;
+    padding:10px 18px;border-radius:999px;cursor:pointer;text-decoration:none;
+    border:1.5px solid var(--navy);background:var(--navy);color:#fff;
+    transition:background .2s ease,transform .1s ease;
+  }
+  .btn:hover{background:var(--navy-deep)}
+  .btn:active{transform:scale(.98)}
+  .btn.ghost{background:#fff;color:var(--navy)}
+  .btn.ghost:hover{background:var(--blue-soft)}
+  .btn svg{width:16px;height:16px}
+
+  /* sign-off */
+  .signoff{
+    border-top:1px dashed var(--line);margin-top:18px;padding-top:16px;
+    display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px;
+  }
+  .signoff .field{flex:1;min-width:220px}
+  .btn.sign{background:var(--gold);border-color:var(--gold);color:var(--navy-deep)}
+  .btn.sign:hover{background:#D4882A;border-color:#D4882A}
+  .btn.sign:disabled{opacity:.45;cursor:not-allowed}
+  .signed-line{
+    display:none;align-items:center;gap:10px;width:100%;
+    background:var(--green-soft);border:1px solid #BBDFC9;border-radius:10px;
+    padding:11px 14px;font-size:14px;color:var(--green);font-weight:600;
+  }
+  .signed-line svg{width:18px;height:18px;flex:none}
+  .signed-line .undo{margin-left:auto;font-size:12px;font-weight:500;color:#76849E;cursor:pointer;text-decoration:underline}
+  .step.signed .signoff-controls{display:none}
+  .step.signed .signed-line{display:flex}
+
+  /* ---------- Completion ---------- */
+  .finish{
+    margin-top:26px;border-radius:var(--radius);padding:30px 26px;text-align:center;
+    background:var(--card);border:1.5px dashed var(--line);color:#8B97AE;
+    transition:all .4s ease;
+  }
+  .finish h2{font-family:'Archivo',sans-serif;font-weight:800;font-size:24px;margin-bottom:8px;color:#A9B4C8}
+  .finish p{font-size:14.5px;max-width:56ch;margin:0 auto}
+  .finish .warn-line{margin-top:10px;font-weight:600}
+  .finish.complete{
+    background:linear-gradient(160deg,var(--navy) 0%,var(--navy-deep) 100%);
+    border:1.5px solid var(--navy);color:#C5D0E4;
+  }
+  .finish.complete h2{color:var(--gold)}
+  .finish.complete .warn-line{display:none}
+  .finish-actions{margin-top:18px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .btn.save{display:none;background:var(--gold);border-color:var(--gold);color:var(--navy-deep)}
+  .btn.save:hover{background:#D4882A;border-color:#D4882A}
+  .finish.complete .btn.save{display:inline-flex}
+  .finish .reset{display:none}
+  .finish.complete .reset{display:inline-flex;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.3);color:#fff}
+
+  footer{max-width:820px;margin:0 auto;padding:0 20px 48px;text-align:center;font-size:13px;color:#8B97AE}
+  footer a{color:#5E6E8C}
+
+
+
+  /* ---------- Embedded USI guide ---------- */
+  details.sanction .inner ol.steps{list-style:none;counter-reset:step;display:flex;flex-direction:column;gap:12px;margin-top:6px}
+  details.sanction .inner ol.steps>li{counter-increment:step;position:relative;padding-left:38px}
+  details.sanction .inner ol.steps>li::before{
+    content:counter(step);position:absolute;left:0;top:0;
+    width:26px;height:26px;border-radius:50%;background:var(--navy);color:#fff;
+    font-family:'Archivo',sans-serif;font-weight:700;font-size:12px;display:grid;place-items:center;
+  }
+  details.sanction .inner ol.steps>li:not(:last-child)::after{
+    content:"";position:absolute;left:12.5px;top:30px;bottom:-10px;width:1.5px;background:var(--line);
+  }
+  details.sanction .inner ol.steps h4{font-size:13.5px;font-weight:600;color:var(--navy);margin-bottom:1px}
+  ul.ids{margin-top:7px;display:flex;flex-wrap:wrap;gap:6px;list-style:none}
+  ul.ids li{font-size:12px;font-weight:500;color:var(--navy);background:var(--blue-soft);border:1px solid var(--line);padding:4px 10px;border-radius:999px}
+  .phones{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+  .phone{display:flex;align-items:center;gap:12px;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 13px;text-decoration:none}
+  .phone:hover{border-color:var(--navy)}
+  .phone .num{font-family:'Archivo',sans-serif;font-weight:700;font-size:14.5px;color:var(--navy)}
+  .phone .where{font-size:12px;color:#76849E}
+  .video{margin-top:12px;display:inline-flex;align-items:center;gap:9px;font-size:13px;font-weight:600;color:var(--navy);text-decoration:none;background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:7px 14px 7px 9px}
+  .video:hover{border-color:var(--navy)}
+  .video .play{width:21px;height:21px;border-radius:50%;background:#D62828;color:#fff;display:grid;place-items:center;flex:none}
+  .video .play svg{width:9px;height:9px;margin-left:1px}
+  .usi-help-label{margin-top:16px;font-size:12px;font-weight:700;color:#76849E;text-transform:uppercase;letter-spacing:.1em}
+  /* ---------- QR resources ---------- */
+  .qr-strip{
+    margin-top:26px;background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius);padding:22px;
+  }
+  .qr-strip h2{
+    font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;color:var(--navy);
+    text-transform:uppercase;letter-spacing:.1em;text-align:center;margin-bottom:18px;
+  }
+  .qr-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+  @media(max-width:720px){.qr-grid{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:480px){.qr-grid{grid-template-columns:repeat(2,1fr)}}
+  .qr-tile{
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+    text-decoration:none;padding:10px 6px;border-radius:12px;
+    border:1px solid transparent;transition:border-color .2s ease;
+  }
+  .qr-tile:hover{border-color:var(--line);background:var(--paper)}
+  .qr-tile img{width:100%;max-width:110px;image-rendering:pixelated}
+  .qr-tile span{
+    font-size:11.5px;font-weight:700;letter-spacing:.06em;color:var(--navy);
+    text-align:center;text-transform:uppercase;line-height:1.3;
+  }
+
+  /* ---------- Print: clean A4 enrolment record ---------- */
+  @page{size:A4;margin:12mm}
+  @media print{
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    body{background:#fff;font-size:12px}
+    .progress-shell,.btn,.undo,.reset,.note,details.sanction,footer,.usi-help-label,.video,.no-print{display:none!important}
+    header{padding:14px 0;background:none;color:var(--navy)}
+    header .eyebrow{color:#9A6213}
+    .head-meta{color:var(--slate)}
+    .head-meta b{color:var(--navy)}
+    h1{font-size:22px}
+    main{padding:10px 0 0}
+    .stack{gap:8px}
+    .step{box-shadow:none;break-inside:avoid;border-radius:8px}
+    .step-head{padding:8px 14px;border-bottom:1px solid var(--line)}
+    .step-num{width:26px;height:26px;font-size:13px;border-radius:6px}
+    .step-head h2{font-size:14px}
+    .step-body{padding:10px 14px}
+    .step-body p{font-size:11.5px}
+    .rules{padding:8px 12px;font-size:11px;margin-top:8px}
+    .rules h3{font-size:10px}
+    .grid{gap:8px}
+    .field label{font-size:10.5px}
+    .field input{padding:5px 8px;font-size:12px;border-radius:6px;border-width:1px}
+    .hint{display:none}
+    .signoff{margin-top:8px;padding-top:8px}
+    .signoff .field input{border:none;border-bottom:1px solid var(--line);border-radius:0}
+    .signed-line{padding:6px 10px;font-size:11.5px}
+    .step:not(.signed) .signoff::after{
+      content:"NOT SIGNED";color:var(--red);font-weight:700;font-size:11px;
+      letter-spacing:.08em;align-self:center;
+    }
+    .finish{margin-top:10px;padding:14px;break-inside:avoid}
+    .finish h2{font-size:16px}
+    .finish p{font-size:11.5px}
+    .qr-strip{margin-top:10px;padding:12px;break-inside:avoid}
+    .qr-strip h2{font-size:11px;margin-bottom:8px}
+    .qr-grid{grid-template-columns:repeat(6,1fr)!important;gap:8px}
+    .qr-tile img{max-width:78px}
+    .qr-tile span{font-size:8.5px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">KOI Newcastle · Enrolment Day</div>
+    <h1>Enrolment Checklist</h1>
+    <div class="head-meta">
+      <span>Date: <b id="today"></b></span>
+      <span>Steps signed: <b><span id="headCount">0</span> of 6</b></span>
+    </div>
+  </div>
+</header>
+
+<div class="progress-shell">
+  <div class="progress">
+    <span class="count"><span id="barCount">0</span>/6</span>
+    <div class="bar"><i id="barFill"></i></div>
+    <span class="pct" id="barLabel">Not started</span>
+  </div>
+</div>
+
+<main>
+  <div class="wrap stack">
+
+    <!-- ================= STEP 1 ================= -->
+    <section class="step" data-step="1">
+      <div class="step-head">
+        <span class="step-num">1</span>
+        <h2>Registration</h2>
+        <span class="tick">✓ Signed</span>
+      </div>
+      <div class="step-body">
+        <div class="grid">
+          <div class="field">
+            <label for="sid">Student ID</label>
+            <input id="sid" class="mono" type="text" inputmode="numeric" maxlength="8" placeholder="12345678" autocomplete="off">
+            <span class="hint" id="sidHint">Exactly 8 digits</span>
+          </div>
+          <div class="field">
+            <label for="sname">Student name</label>
+            <input id="sname" type="text" placeholder="As shown on your passport" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="course">Course name</label>
+            <input id="course" type="text" list="courseList" placeholder="Select or type your course" autocomplete="off">
+          </div>
+          <div class="field no-print">
+            <label for="usi">USI (Unique Student Identifier) number</label>
+            <input id="usi" class="mono" type="text" maxlength="10" placeholder="ABC1234567" autocomplete="off" style="text-transform:uppercase">
+            <span class="hint" id="usiHint">10 characters — letters and numbers</span>
+          </div>
+        </div>
+
+        <div class="note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <span><b>Please keep your USI portal page (or USI email) open</b> — staff need to verify your name format against your ID before you continue.</span>
+        </div>
+
+        <div class="rules no-print">
+          <h3>Your USI name must match your passport</h3>
+          <ul>
+            <li><b>Middle name:</b> must be left <b>blank</b> in the USI portal.</li>
+            <li><b>First name:</b> include your first name <b>and all other given names</b>.</li>
+            <li><b>Last name:</b> only the <b>surname</b> listed on your passport.</li>
+            <li><b>Only one name?</b> Enter it as your <b>surname</b>.</li>
+          </ul>
+        </div>
+
+        <details class="sanction">
+          <summary>USI invalid or missing? What happens next</summary>
+          <div class="inner">
+            <p>If your USI is invalid or missing, a <b>sanction</b> will appear on your record. <b>This does not block your enrolment</b> — you can still continue with subject selection.</p>
+            <p>Once your names match your passport and the USI portal, the system will validate your USI automatically. If you enter a valid USI, the sanction disappears by itself within a few hours.</p>
+            <p>To have it removed manually, email <a href="mailto:USI@koi.edu.au">USI@koi.edu.au</a>.</p>
+          </div>
+        </details>
+
+        <p class="usi-help-label">USI help — tap a section to open</p>
+
+        <details class="sanction">
+          <summary>Finding an existing USI — created one but can't remember it?</summary>
+          <div class="inner">
+            <p>Don't worry — you can easily retrieve it in a few minutes.</p>
+            <ol class="steps">
+              <li><h4>Visit the USI website</h4><p>Go to the official <a href="https://www.usi.gov.au/" target="_blank" rel="noopener">USI website</a>.</p></li>
+              <li><h4>Click "Find your USI"</h4><p>This option retrieves your USI if you've forgotten it.</p></li>
+              <li><h4>Verify your identity</h4><p>Enter the same details you used when you created the USI — name and date of birth — and verify your ID.</p></li>
+              <li><h4>Receive your USI</h4><p>Once confirmed, you'll be able to view your existing USI.</p></li>
+            </ol>
+          </div>
+        </details>
+
+        <details class="sanction" style="margin-top:8px">
+          <summary>Creating a new USI — first time? About 10 minutes</summary>
+          <div class="inner">
+            <ol class="steps">
+              <li>
+                <h4>Gather your identification</h4>
+                <p>Have one form of ID ready. Accepted documents include:</p>
+                <ul class="ids">
+                  <li>Driver's Licence</li><li>Medicare Card</li><li>Australian Passport</li>
+                  <li>Visa (with non-Australian passport)</li><li>Australian Birth Certificate</li><li>ImmiCard</li>
+                </ul>
+                <p style="margin-top:8px;font-size:12.5px">Full list: <a href="https://www.usi.gov.au/students/identification" target="_blank" rel="noopener">accepted ID page</a>.</p>
+              </li>
+              <li><h4>Go to the USI website</h4><p>Head to the official <a href="https://www.usi.gov.au/students/get-a-usi" target="_blank" rel="noopener">Get a USI page</a>.</p></li>
+              <li><h4>Click "Create a USI"</h4><p>Start by clicking the <b>Create a USI</b> button.</p></li>
+              <li><h4>Agree to the terms</h4><p>Carefully read and agree to the terms and privacy notice.</p></li>
+              <li><h4>Enter your details</h4><p>Name, date of birth, contact details — <b>everything must match your ID exactly</b>.</p></li>
+              <li><h4>Enter ID information</h4><p>Add your ID document details to verify your identity.</p></li>
+              <li><h4>Set up security questions</h4><p>These help you retrieve your USI if you ever forget it.</p></li>
+              <li><h4>Receive your USI</h4><p>Once you submit, your USI is generated instantly.</p></li>
+            </ol>
+            <a class="video" href="https://www.youtube.com/watch?v=08lcoXgWxqw" target="_blank" rel="noopener">
+              <span class="play"><svg viewBox="0 0 12 12" fill="currentColor"><path d="M2 1.5v9l8-4.5z"/></svg></span>
+              Watch the video guide
+            </a>
+          </div>
+        </details>
+
+        <details class="sanction" style="margin-top:8px">
+          <summary>Name issues — your name won't verify online</summary>
+          <div class="inner">
+            <p>Contact the <b>Student Identifiers Registrar</b> directly for manual verification:</p>
+            <div class="phones">
+              <a class="phone" href="tel:1300857536"><span><span class="num">1300 857 536</span><br><span class="where">Within Australia</span></span></a>
+              <a class="phone" href="tel:+61262408740"><span><span class="num">+61 2 6240 8740</span><br><span class="where">Calling from overseas</span></span></a>
+            </div>
+            <p style="font-size:12.5px"><b>Before you call:</b> have at least <b>two forms of identity</b> ready so the support team can verify you over the phone.</p>
+            <a class="video" href="https://www.youtube.com/watch?v=ORmI1vcVcB4" target="_blank" rel="noopener">
+              <span class="play"><svg viewBox="0 0 12 12" fill="currentColor"><path d="M2 1.5v9l8-4.5z"/></svg></span>
+              Watch the troubleshooting video
+            </a>
+          </div>
+        </details>
+
+        <div class="signoff">
+          <div class="signoff-controls field">
+            <label>Staff sign off</label>
+            <input list="staffList" class="staff-name" placeholder="Select or type staff name" autocomplete="off">
+          </div>
+          <button class="btn sign signoff-controls" disabled>Sign off step 1</button>
+          <div class="signed-line">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <span class="who"></span>
+            <span class="undo">undo</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= STEP 2 ================= -->
+    <section class="step" data-step="2">
+      <div class="step-head">
+        <span class="step-num">2</span>
+        <h2>Student Details form</h2>
+        <span class="tick">✓ Signed</span>
+      </div>
+      <div class="step-body">
+        <p><b>First — log in to your personal email.</b> The student portal sends a sign-in link to this address, so keep it open.</p>
+        <p style="margin-top:14px">
+          <a class="btn ghost" href="https://gmail.com" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            Open Gmail
+          </a>
+        </p>
+        <p class="hint" style="margin-top:6px">Shortcut for Gmail users — if your personal email is with another provider, open that one instead.</p>
+        <p style="margin-top:16px"><b>Then — open the student portal</b> and enter the same personal email address. Open the link sent to your inbox to finish signing in.</p>
+        <p style="margin-top:14px">
+          <a class="btn" href="https://koit1sms.t1cloud.com/T1Default/CiAnywhere/Web/KOIT1SMS/LogOn/STUDENT_ENROLLMENT" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
+            Open the student portal
+          </a>
+        </p>
+        <div class="note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <span>If there are any issues, please let the staff know — we're here to help.</span>
+        </div>
+
+        <div class="signoff">
+          <div class="signoff-controls field">
+            <label>Staff sign off</label>
+            <input list="staffList" class="staff-name" placeholder="Select or type staff name" autocomplete="off">
+          </div>
+          <button class="btn sign signoff-controls" disabled>Sign off step 2</button>
+          <div class="signed-line">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <span class="who"></span>
+            <span class="undo">undo</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= STEP 3 ================= -->
+    <section class="step" data-step="3">
+      <div class="step-head">
+        <span class="step-num">3</span>
+        <h2>Tuition Fee payment</h2>
+        <span class="tick">✓ Signed</span>
+      </div>
+      <div class="step-body">
+        <p>Confirm your tuition fee payment with the finance desk.</p>
+        <p style="margin-top:8px">For payment queries or to request an invoice, contact KOI Accounts: <a href="mailto:fees@koi.edu.au">fees@koi.edu.au</a>.</p>
+
+        <div class="signoff">
+          <div class="signoff-controls field">
+            <label>Staff sign off</label>
+            <input list="staffList" class="staff-name" placeholder="Select or type staff name" autocomplete="off">
+          </div>
+          <button class="btn sign signoff-controls" disabled>Sign off step 3</button>
+          <div class="signed-line">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <span class="who"></span>
+            <span class="undo">undo</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= STEP 4 ================= -->
+    <section class="step" data-step="4">
+      <div class="step-head">
+        <span class="step-num">4</span>
+        <h2>Subjects and Timetable</h2>
+        <span class="tick">✓ Signed</span>
+      </div>
+      <div class="step-body">
+        <p>Select your subjects and confirm your timetable in the student portal.</p>
+        <p>If you need any assistance, please ask any KOI staff member.</p>
+        <p style="margin-top:14px">
+          <a class="btn" href="https://koi-timetable-preview.koi1.workers.dev/" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
+            Open the timetable
+          </a>
+        </p>
+
+        <div class="signoff">
+          <div class="signoff-controls field">
+            <label>Staff sign off</label>
+            <input list="staffList" class="staff-name" placeholder="Select or type staff name" autocomplete="off">
+          </div>
+          <button class="btn sign signoff-controls" disabled>Sign off step 4</button>
+          <div class="signed-line">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <span class="who"></span>
+            <span class="undo">undo</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= STEP 5 ================= -->
+    <section class="step" data-step="5">
+      <div class="step-head">
+        <span class="step-num">5</span>
+        <h2>Student ID Card</h2>
+        <span class="tick">✓ Signed</span>
+      </div>
+      <div class="step-body">
+        <p>Your student ID card can only be obtained <b>after approval from the IT officer</b>.</p>
+
+        <div class="signoff">
+          <div class="signoff-controls field">
+            <label>IT Officer approval</label>
+            <input list="staffList" class="staff-name" placeholder="Select or type staff name" autocomplete="off">
+          </div>
+          <button class="btn sign signoff-controls" disabled>Approve step 5</button>
+          <div class="signed-line">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <span class="who"></span>
+            <span class="undo">undo</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= STEP 6 ================= -->
+    <section class="step" data-step="6">
+      <div class="step-head">
+        <span class="step-num">6</span>
+        <h2>IT Training Session</h2>
+        <span class="tick">✓ Signed</span>
+      </div>
+      <div class="step-body">
+        <p>In this session you will set up:</p>
+        <div class="rules" style="margin-top:10px">
+          <ul>
+            <li><b>Single sign-on (SSO)</b> — Student Portal and Moodle.</li>
+            <li><b>KOI domain account</b> — for KOI IT facilities: Wi-Fi, student PCs, printing, and your MS account password.</li>
+            <li><b>Recovery information</b> — so you can reset your password yourself later.</li>
+          </ul>
+        </div>
+
+        <div class="signoff">
+          <div class="signoff-controls field">
+            <label>Staff sign off</label>
+            <input list="staffList" class="staff-name" placeholder="Select or type staff name" autocomplete="off">
+          </div>
+          <button class="btn sign signoff-controls" disabled>Sign off step 6</button>
+          <div class="signed-line">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <span class="who"></span>
+            <span class="undo">undo</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= COMPLETION ================= -->
+    <div class="finish" id="finish">
+      <h2 id="finishTitle">Enrolment incomplete</h2>
+      <p>Make sure <b>ALL steps</b> have been signed off by the relevant staff members.</p>
+      <p class="warn-line">If one or more steps are NOT SIGNED, your enrolment is INCOMPLETE.</p>
+      <div class="finish-actions">
+        <button class="btn save" id="saveBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+          Save / print this form
+        </button>
+        <button class="btn reset" id="resetBtn">Reset checklist for next student</button>
+      </div>
+    </div>
+
+
+    <!-- ================= QR RESOURCES ================= -->
+    <section class="qr-strip">
+      <h2>Useful links — scan or tap</h2>
+      <div class="qr-grid">
+      <a class="qr-tile" href="https://koi.edu.au/student-guide/" target="_blank" rel="noopener">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQgAAAEICAIAAAAslP2oAAAFCUlEQVR4nO3d0YkcORRAUY/ZFBzDBrPxOpiNwUHUfi9cGQQSUrnP+TTj7mpPXwT1rNLX8zzfgP/7fvoC4EbCgCAMCMKAIAwIwoAgDAjCgCAMCMKAIAwIwoAgDAjCgCAMCH/N/oUff/+z4zqW+/Xvz/zz3de/+31Xvf7odWa9/fswYsWAIAwIwoAgDAjCgCAMCMKAMD3HGFl1X3zW7vv3u+cPq9531Xxj9POz1/+W78OIFQOCMCAIA4IwIAgDgjAgCAPCsjnGyKk5wMiq+/Szrz8yet/dc4/d/w6z7ztr93VaMSAIA4IwIAgDgjAgCAOCMCBsn2Pc5rbnTY3c9vyrU/srTrFiQBAGBGFAEAYEYUAQBgRhQPi4OcbIqfnGbT5tXjFixYAgDAjCgCAMCMKAIAwIwoCwfY5x233xU+dp7D7v4i1zmNu+DyNWDAjCgCAMCMKAIAwIwoAgDAjL5hi33S+ftfs5S2+ZM6z6vLd9rllWDAjCgCAMCMKAIAwIwoAgDAhfz/OcvoaPcNu52s7H+D0rBgRhQBAGBGFAEAYEYUAQBoTp/Ri33Rf/U5/XtOpz3fZ7WbWvY/fnsmJAEAYEYUAQBgRhQBAGBGFAWLYf49R961mr5g+3zQdGVs1hdr/OrN3va8WAIAwIwoAgDAjCgCAMCMKAsGw/xqqf3/06q+zev7Hq/I1Zp54fdWquMmLFgCAMCMKAIAwIwoAgDAjCgLDsnO/bzk84dV71qvnGnzq3ecs8x4oBQRgQhAFBGBCEAUEYEIQBYdkcY+Qtz3F6y3kXp+Ybtz1XasT5GLCRMCAIA4IwIAgDgjAgCAPCsjnG7vvZp87hvm0ectt+kpFT84pVrBgQhAFBGBCEAUEYEIQBQRgQpucYu+cGp87f2H3f/dTc5tR55CO75yTOx4CNhAFBGBCEAUEYEIQBQRgQvp7nWfJCt+1DmPX2/SS792ms+vc/NT+ZZcWAIAwIwoAgDAjCgCAMCMKAsP18jLefa3HqelbNN3bPT5yPAR9EGBCEAUEYEIQBQRgQhAFh2Rzj1LnUb5mTvP25UqfOFz/1vlYMCMKAIAwIwoAgDAjCgCAMCNNzjFX///7UORinvP36T82LTs2drBgQhAFBGBCEAUEYEIQBQRgQlp2Pscpt97NHTp0Xcdu+i1Pne+xmxYAgDAjCgCAMCMKAIAwIwoAwPcc4df7D25+PtNttc55Vdu8DGbFiQBAGBGFAEAYEYUAQBgRhQLhuP8Zuu+cks++7yu7r2b3/ZNbu35cVA4IwIAgDgjAgCAOCMCAIA8L28zFO2f2cot1zgNvORx9ZNTfwXCl4AWFAEAYEYUAQBgRhQBAGhOk5xsip+9CnznNY9fqjn3/L+ei3/d49Vwo2EgYEYUAQBgRhQBAGBGFAWDbHGNk9Hzjltv0eI2+Zh+x+fpfnSsECwoAgDAjCgCAMCMKAIAwI2+cYn2b3PoFZp87BGNn93KpV8xYrBgRhQBAGBGFAEAYEYUAQBoSPm2Osus996rzwVa8/+vlTc4/bzg+xYkAQBgRhQBAGBGFAEAYEYUDYPsd4+/OgTp1rftt8Y+TUXGj398qKAUEYEIQBQRgQhAFBGBCEAWHZHOPU/f5Zbz+v47b7/afmJyPOx4CNhAFBGBCEAUEYEIQBQRgQvp7nOX0NcB0rBgRhQBAGBGFAEAYEYUAQBgRhQBAGBGFAEAYEYUAQBgRhQBAGhP8A50wSCqY6htsAAAAASUVORK5CYII=" alt="QR code: STUDENT GUIDE">
+        <span>STUDENT GUIDE</span>
+      </a>
+      <a class="qr-tile" href="https://koi.edu.au/current-students/" target="_blank" rel="noopener">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQgAAAEICAIAAAAslP2oAAAFEElEQVR4nO3dwW0kNxBAUctwCo7BwTheB+MYHMT44JOBzwUIsMDu1XvHhTRqzc4HgS6x+fX5fH4B/u/X2xcATyQMCMKAIAwIwoAgDAjCgCAMCMKAIAwIwoAgDAjCgCAMCMKA8NvuN/z+x58T13HcP3//lf++uv7V16/svg/T13PL2z8PK1YMCMKAIAwIwoAgDAjCgCAMCNtzjJVb991PzRNumZ6fnLJ7nW/5PKxYMSAIA4IwIAgDgjAgCAOCMCAcm2OsnLqv/Jb74tP7Lk69/q19IG/5PFgxIAgDgjAgCAOCMCAIA4IwIIzPMZ7m1n30W/OHt8w3nsaKAUEYEIQBQRgQhAFBGBCEAeHbzTF2Tc8HVm7NE77bvGLFigFBGBCEAUEYEIQBQRgQhAFhfI7xlvvip65zer/H7nzjafsu3vJ5sGJAEAYEYUAQBgRhQBAGBGFAODbHuHX+9LRbz3E65dZzpd7+ebBiQBAGBGFAEAYEYUAQBgRhQNieY7zl7+lPedp+hpVbc4Of9fNgxYAgDAjCgCAMCMKAIAwIwoCwPceYvn9/az/D7uvc2l+x6y37RlZO7QPZfR0rBgRhQBAGBGFAEAYEYUAQBoSvz+ez9Q1P24ewMj2XmP59p+cGTzsPZJo5BhwgDAjCgCAMCMKAIAwIwoAwfs73yvR+gFtzhlv7GU793Lef/33qfbZiQBAGBGFAEAYEYUAQBgRhQBg/53t1f/rUfetb+yiedv23zvNe2f25T5sLWTEgCAOCMCAIA4IwIAgDgjAgHDvne/rv/qfvx799DnDK9L6Xt+zrsGJAEAYEYUAQBgRhQBAGBGFAGD8f49bzo97yHKpTbp1P8rR9FCvOx4ADhAFBGBCEAUEYEIQBQRgQru3HOGV6P8auU8/ROrW/ZeXt+0ymP4dWDAjCgCAMCMKAIAwIwoAgDAjbc4xbc4Ppc6BvzT2e9lys3dc/9fW33v8VKwYEYUAQBgRhQBAGBGFAEAaEY+d8r7xl7jE9lzj1Ok+bb9x6ntWK8zFgkDAgCAOCMCAIA4IwIAgDwvj5GG/xtPMrbl3PreeDrdyat1gxIAgDgjAgCAOCMCAIA4IwIBw7H2Pl1j6K6fv0u69/6+eeMn2O+61z4lesGBCEAUEYEIQBQRgQhAFBGBDGnyu1cuq+9fR51T/rXOItbr0/VgwIwoAgDAjCgCAMCMKAIAwIx54rtetp9+9v7QO5dX75W+Yk0/8vK1YMCMKAIAwIwoAgDAjCgCAMCNtzjLdzv//HnjZvufX6VgwIwoAgDAjCgCAMCMKAIAwI28+V+m739Z+2v+KUU68//fyulelz5a0YEIQBQRgQhAFBGBCEAUEYEI6djzF9X3nl1P3vW/f1n3b9u6bnRSvOx4ALhAFBGBCEAUEYEIQBQRgQxs/5nj5PY9f0/e/pecWuU9dza3/I7vtw6n2zYkAQBgRhQBAGBGFAEAYEYUAYn2M8zannRK2+/tb+ilP3+6efl3XK9PVbMSAIA4IwIAgDgjAgCAOCMCB8uznG203PPX7W80B2WTEgCAOCMCAIA4IwIAgDgjAgjM8xnvZ3/CvOr/jP0+YVt95PKwYEYUAQBgRhQBAGBGFAEAaEY3OMp/09/cqt5yZNP8/qlt3rn/69nI8Bg4QBQRgQhAFBGBCEAUEYEL4+n8/ta4DHsWJAEAYEYUAQBgRhQBAGBGFAEAYEYUAQBgRhQBAGBGFAEAYEYUD4Fz7NMYQXtIW3AAAAAElFTkSuQmCC" alt="QR code: KOI CALENDAR">
+        <span>KOI CALENDAR</span>
+      </a>
+      <a class="qr-tile" href="https://koi.edu.au/student-handbook/" target="_blank" rel="noopener">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQgAAAEICAIAAAAslP2oAAAE+0lEQVR4nO3d0YkrNwBA0WxIC6khxaTeFJMaUoTzHbgKCCQk4XM+H2/Hs15fBJI1+vl8Pr8A//Xr6RuAGwkDgjAgCAOCMCAIA4IwIAgDgjAgCAOCMCAIA4IwIAgDgjAg/Db7A7//8eeO+1jun7//yn8/df+v3M+s1z8PI0YMCMKAIAwIwoAgDAjCgCAMCNPrGCOr5sVn7Z5Hn/29Zu9n1fVPXWfk9c+DEQOCMCAIA4IwIAgDgjAgCAPCsnWMkVXzyqfmxUde2Ucxe5+71zde+TwYMSAIA4IwIAgDgjAgCAOCMCBsX8e4zW37K1a97sht6z+vMGJAEAYEYUAQBgRhQBAGBGFA+Lp1jNue+7T7OVGn1mFeZ8SAIAwIwoAgDAjCgCAMCMKAsH0d47Z58dv2Y+x+f15//08xYkAQBgRhQBAGBGFAEAYEYUBYto5x6ryIWav2P6zaX/H6/x955fMwYsSAIAwIwoAgDAjCgCAMCMKA8PP5fE7fw9V2z8fvXk8Y2X391xkxIAgDgjAgCAOCMCAIA4IwIEzvx/i27+vv3uew6nVnrzPyyvkhs2bv04gBQRgQhAFBGBCEAUEYEIQB4brnSp3anzByat591eueOuf71DrVqvs3YkAQBgRhQBAGBGFAEAYEYUCYXsfYvT9hdv772/aHvP48qFX3ufv3NWJAEAYEYUAQBgRhQBAGBGFAWLYfY/e88u7nF+1eb1nl1POXbnve1O7rGDEgCAOCMCAIA4IwIAgDgjAgLDvn+9Tzl04x3///1xm57TlgI0YMCMKAIAwIwoAgDAjCgCAMCMvO+T5l93kOs9d/fV/H7uvf9vkZMWJAEAYEYUAQBgRhQBAGBGFAWPZcqZHbzv/efQ73rFPnmp/aNzJ7/VN/XyMGBGFAEAYEYUAQBgRhQBAGhGXnfI/sno8/tQ7wyrnap5779Mr7M2LEgCAMCMKAIAwIwoAgDAjCgLBsP8Zt+xx2O7XfYLfd56Pvfh9WvW9GDAjCgCAMCMKAIAwIwoAgDAjT53zvfp7S7OueOofhttcduW29Zfff0ToGbCQMCMKAIAwIwoAgDAjCgLB9HePUPPfu/Qy3nS8x+7qn1iVeuY4RA4IwIAgDgjAgCAOCMCAIA8J153zvfo7QqfWBkVP7DWadWl9a9ZyrWUYMCMKAIAwIwoAgDAjCgCAMCMf2Y+ye5569n1XXv82p51+dYh0DNhIGBGFAEAYEYUAQBgRhQJhex3jdqfn73ec/3HYux8gr+0+MGBCEAUEYEIQBQRgQhAFBGBCmnyv1yvf4Vz2f6pV591NOnU+ymxEDgjAgCAOCMCAIA4IwIAgDwrLzMW47t2HVdV7f/7Dbqvvcvd/DOd+wgDAgCAOCMCAIA4IwIAgDwnXnfI/sntc/dW73quvsPvdj97rNbfs6jBgQhAFBGBCEAUEYEIQBQRgQtq9jvOLUfozd11/1e72yP2QVIwYEYUAQBgRhQBAGBGFAEAaEr1vHOHUOxuj6p84b2b2+8cr55SNGDAjCgCAMCMKAIAwIwoAgDAjb1zFe/x7/K/P9q/7/bq+sexgxIAgDgjAgCAOCMCAIA4IwIPx8Pp+pHzj1/fhZt82X37aecOrveNv7MGLEgCAMCMKAIAwIwoAgDAjCgDC9jgHfwIgBQRgQhAFBGBCEAUEYEIQBQRgQhAFBGBCEAUEYEIQBQRgQhAHhXzSGDw3neLkYAAAAAElFTkSuQmCC" alt="QR code: STUDENT HANDBOOK">
+        <span>STUDENT HANDBOOK</span>
+      </a>
+      <a class="qr-tile" href="https://koi.edu.au/professional-internship-program/" target="_blank" rel="noopener">
+        <img src="data:image/png;base64,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" alt="QR code: INTERNSHIP PROGRAM">
+        <span>INTERNSHIP PROGRAM</span>
+      </a>
+      <a class="qr-tile" href="https://koi.edu.au/koi-intake-dates/" target="_blank" rel="noopener">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQgAAAEICAIAAAAslP2oAAAFC0lEQVR4nO3dwW1ENRRAUYJogRoohnophhooYliwQrp/YclP9k/OWaIw/Ay5sjQe+319Pp9fgP/79fQDwI2EAUEYEIQBQRgQhAFBGBCEAUEYEIQBQRgQhAFBGBCEAUEYEH5b/Rd+/+PPiefY7p+//8p//vT8u35+1a7XX/3/Mv3+3Gb1/bRiQBAGBGFAEAYEYUAQBgRhQFjex3iy63P9VW/5/P7pdXbtV5x6nSdv+Xt4YsWAIAwIwoAgDAjCgCAMCMKAsG0f48muz5WnPxef3q/YtW8w/ZzT3vL3YMWAIAwIwoAgDAjCgCAMCMKAML6PcZvb7ok69fPT78PbWTEgCAOCMCAIA4IwIAgDgjAg/Lh9jF127Rs8OXXPFf+xYkAQBgRhQBAGBGFAEAYEYUAY38f4aZ+X33Y/1W3nMd7y92DFgCAMCMKAIAwIwoAgDAjCgLBtH2PX3IO3mz5Hscv0HI+3/z1YMSAIA4IwIAgDgjAgCAOCMCAs72O85fv0q3bd+3TKqef/rn8PVgwIwoAgDAjCgCAMCMKAIAwIy/sYb5mTvWr6vMFt5y6e7Jrvscuu5199HSsGBGFAEAYEYUAQBgRhQBAGhPH5GNPzp6f3N07NkTj1/LfdH3Vq/8SKAUEYEIQBQRgQhAFBGBCEAeG6Od/Tn1tP75N813Mjb5n/vet9tmJAEAYEYUAQBgRhQBAGBGFAODYfY/pz/dX7kXbtb6zate+xa1/l1O9123x0KwYEYUAQBgRhQBAGBGFAEAaEbecx3n7/0urrv+V8wurrn7oHbJddr2/FgCAMCMKAIAwIwoAgDAjCgPD1+XyO/IdP7Q88mf78/rb7sna57RzFE3O+YQNhQBAGBGFAEAYEYUAQBoTx+RhPTs2dmD4/sGt/Zte9Uk/ect/U9Os8sWJAEAYEYUAQBgRhQBAGBGFAWD6PcWpe9S7T+x6rTu0/nDoX8WR6n8d5DNhAGBCEAUEYEIQBQRgQhAFh23mMt8z/PvW5/m3nDU6db5lmPgYMEgYEYUAQBgRhQBAGBGFAGL9Xatc9RdP7JNOf6586bzB9T9Rtcz92/b5WDAjCgCAMCMKAIAwIwoAgDAjL+xjT378/NT/7LZ/3v2WuxW0/v8qKAUEYEIQBQRgQhAFBGBCEAWH8PMZt5xBWX2fa6vPvmv99231QT07dA2bFgCAMCMKAIAwIwoAgDAjCgDA+5/vU+YpdTs2pWPX2Od9P3CsFFxEGBGFAEAYEYUAQBgRhQHj9vVKrTs1z2HW+YtX0PU7Tz3OKFQOCMCAIA4IwIAgDgjAgCAPC8j7Gd/0e/6l5Dk/ecu7lLb/vKisGBGFAEAYEYUAQBgRhQBAGhG3zMU59n356nsZt50Nuuydqeo74E/Mx4ABhQBAGBGFAEAYEYUAQBoTxOd8/bY7EbXPHdz3PbfdfPdn1vlkxIAgDgjAgCAOCMCAIA4IwIIzvY9xm+r6p2+5Zum0+xi7Tz2/FgCAMCMKAIAwIwoAgDAjCgPDj9jFWTc+RWDV9r9Rt879PsWJAEAYEYUAQBgRhQBAGBGFAGN/HuO17/E9O3Te1+jzTbtuvODUPxIoBQRgQhAFBGBCEAUEYEIQBYds+xm3fp39yag7DW96fVavv56nzJKusGBCEAUEYEIQBQRgQhAFBGBC+Pp/P6WeA61gxIAgDgjAgCAOCMCAIA4IwIAgDgjAgCAOCMCAIA4IwIAgDgjAg/AvvjiclvL/TUQAAAABJRU5ErkJggg==" alt="QR code: INTAKE DATES">
+        <span>INTAKE DATES</span>
+      </a>
+      <a class="qr-tile" href="https://form.123formbuilder.com/6969088/t226-september-intensive-agent-experience-survey-by-new-students" target="_blank" rel="noopener">
+        <img src="data:image/png;base64,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AJpeAgAAaHoJAACg6SUAAIC29t5Pz/BtrLWeHuEnmnlEZx6Gg3s1c4G8b+aDc9DMIzpz22fuFe+b+W431SNmLnDmq+8g35cAAACaXgIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAtvbeT8/wtdZaT4/wbVx/GA6aea5m3sGDe2WBj3Da32evvruZj/PMc3W96+/gzAXOfF/5vgQAAND0EgAAQNNLAAAATS8BAAA0vQQAAND0EgAAQNNLAAAATS8BAAA0vQQAAND0EgAAQNNLAAAATS8BAAA0vQQAAND0EgAAQNNLAAAATS8BAAA0vQQAAND0EgAAQNNLAAAATS8BAAA0vQQAAND0EgAAQNNLAAAATS8BAAC019MD/FB776dHCGutp0f4iQ4ehoN38OBU1y9wppmPs8PwvplTzTTztM+c6qCZj/NBM6fiEb4vAQAANL0EAADQ9BIAAEDTSwAAAE0vAQAANL0EAADQ9BIAAEDTSwAAAE0vAQAANL0EAADQ9BIAAEDTSwAAAE0vAQAANL0EAADQ9BIAAEDTSwAAAE0vAQAANL0EAADQ9BIAAEDTSwAAAE0vAQAANL0EAADQ9BIAAEDTSwAAAO319ABtrfX0CGHvfepSBxd4cKqDZu7VQddv+/WufwZnsu3vs1fvm/kX5/qp+O5m/r6ayfclAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoK2999MzfK211tMjfBsHD8PBbZ851UHXL/B619/BmQucOdVBFvjdzTztB12/wINmPoMHXX8HfV8CAABoegkAAKDpJQAAgKaXAAAAml4CAABoegkAAKDpJQAAgKaXAAAAml4CAABoegkAAKDpJQAAgKaXAAAAml4CAABoegkAAKDpJQAAgKaXAAAAml4CAABoegkAAKDpJQAAgKaXAAAAml4CAABoegkAAKDpJQAA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Z7r+1ecwvM8z+Ajb/t15i75v5mm/fqqDfF8CAABoegkAAKDpJQAAgKaXAAAAml4CAABoegkAAKDpJQAAgKaXAAAAml4CAABoegkAAKDpJQAAgKaXAAAAml4CAABoegkAAKDpJQAAgKaXAAAAml4CAABoegkAAKDpJQAAgKaXAAAAml4CAABoegkAAKDpJQAAgKaXAAAA2uvpAdpa6+kRmGLv/fQIYeZU1zu47de/ZBzR9808DO7gd+d99b6DC5z54My8g9dv+0G+LwEAADS9BAAA0PQSAABA00sAAABNLwEAADS9BAAA0PQSAABA00sAAABNLwEAADS9BAAA0PQSAABA00sAAABNLwEAADS9BAAA0PQSAABA00sAAABNLwEAADS9BAAA0PQSAABA00sAAABNLwEAADS9BAAA0PQSAABA00sAAADt9fQA8NOttZ4eIey9nx7hax1c4ME7OHOqmQ7u1czT7g4+cqmDvBneN/MOHjRzgQcPw8zTftCP6KXfv39/fHw8PcVP8fn5+c8//zw9BQAAHPAjeunj4+PXr19PTwEAAHwz/n8JAACg6SUAAICmlwAAAJpeAgAAaHoJAACg6SUAAICmlwAAAJpeAgAAaHoJAACg6SUAAICmlwAAAJpeAgAAaHoJAACg6SUAAICmlwAAAJpeAgAAaHoJAACg6SUAAICmlwAAAJpeAgAAaHoJAACg6SUAAID2enqA72St9fQIX2vv/fQIX+vgAmcehpkLvH6q6828gwfNPFfXb/tB1y9wJtv+iJnvq+v5vgQAAND0EgAAQNNLAAAATS8BAAA0vQQAAND0EgAAQNNLAAAATS8BAAA0vQQAAND0EgAAQNNLAAAATS8BAAA0vQQAAND0EgAAQNNLAAAATS8BAAA0vQQAAND0EgAAQNNLAAAATS8BAAA0vQQAAND0EgAAQNNLAAAATS8BAAC019MDwN+z1jp1qb33qUsdnOqggws8aOZU15v54Bw0c6qDZi5w5rmaOdVBM6eaaeZf55muf3B8XwIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAADa6+kBgInWWk+PEPbeT4/wtWZu+0wz9+r6I3rQwb2aeRhmOrhXM0/79Qs8yIPzPt+XAAAAml4CAABoegkAAKDpJQAAgKaXAAAAml4CAABoegkAAKDpJQAAgKaXAAAAml4CAABoegkAAKDpJQAAgKaXAAAAml4CAABoegkAAKDpJQAAgKaXAAAAml4CAABoegkAAKDpJQAAgKaXAAAAml4CAABoegkAAKDpJQAAgPZ6eoDvZO/99Aj8Kwfv4Frr1KUOOjjVzNM+c9sPmnlEZx6Gg2Zu+0EW+IiZe3U9p/19/ky8z/clAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAADa6+kB/obPz8+nR/hB7DYAANdYe++nZwhrradHYApH9BG2/REHt/3gXl1/GGZu+0EW+IiZe3XQzG0/aOYdnPk4X38YfsT3Jfgf775HzJzqoJl/J2ZONdPMIzrzzTBzqutdv+0zj+j12877/P8SAABA00sAAABNLwEAADS9BAAA0PQSAABA00sAAABNLwEAADS9BAAA0PQSAABA00sAAABNLwEAADS9BAAA0PQSAABA00sAAABNLwEAADS9BAAA0PQSAABA00sAAABNLwEAADS9BAAA0PQSAABA00sAAABNLwEAADS9BAAA0Nbe++kZAAAAJvJ9CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAppcAAACaXgIAAGh6CQAAoOklAACAppf4v/brQAAAAABAkL/1AiOURQAAwPMlAACA50sAAADPlwAAAJ4vAQAAPF8CAAB4vgQAAPAC3e4TeXemR4MAAAAASUVORK5CYII=" alt="QR code: AGENT SURVEY">
+        <span>AGENT SURVEY</span>
+      </a>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  KOI Newcastle · Enrolment support — ask any staff member at the desk.<br>
+  IT issues: <a href="mailto:itsupport@koi.edu.au">itsupport@koi.edu.au</a> · USI sanctions: <a href="mailto:USI@koi.edu.au">USI@koi.edu.au</a>
+</footer>
+
+<datalist id="courseList">
+  <option value="Bachelor of Business (Accounting)"></option>
+  <option value="Bachelor of Business (Management and Finance)"></option>
+  <option value="Bachelor of Information Technology"></option>
+  <option value="Graduate Certificate of Information Systems"></option>
+  <option value="Graduate Certificate in TESOL"></option>
+  <option value="Master of Business Administration"></option>
+  <option value="Master of Information Systems"></option>
+  <option value="Master of Information Technology"></option>
+  <option value="Master of Professional Accounting"></option>
+</datalist>
+
+<datalist id="staffList">
+  <option value="Andrew LICATA"></option>
+  <option value="Evan Briggs"></option>
+  <option value="Prajwal GHIMIRE"></option>
+  <option value="Webber CHEN"></option>
+</datalist>
+
+<script>
+(function(){
+  /* ---- date ---- */
+  const fmt = new Intl.DateTimeFormat('en-AU',{day:'2-digit',month:'short',year:'numeric'});
+  document.getElementById('today').textContent = fmt.format(new Date());
+
+  /* ---- field validation ---- */
+  const sid = document.getElementById('sid');
+  const sidHint = document.getElementById('sidHint');
+  sid.addEventListener('input', () => {
+    sid.value = sid.value.replace(/\D/g,'').slice(0,8);
+    if (sid.value.length === 0){
+      sid.className = 'mono'; sidHint.textContent = 'Exactly 8 digits'; sidHint.className = 'hint';
+    } else if (sid.value.length === 8){
+      sid.className = 'mono ok'; sidHint.textContent = '✓ Valid student ID'; sidHint.className = 'hint';
+    } else {
+      sid.className = 'mono bad';
+      sidHint.textContent = `Needs ${8 - sid.value.length} more digit${8 - sid.value.length === 1 ? '' : 's'} — must be exactly 8`;
+      sidHint.className = 'hint err';
+    }
+  });
+
+  const usi = document.getElementById('usi');
+  const usiHint = document.getElementById('usiHint');
+  usi.addEventListener('input', () => {
+    usi.value = usi.value.replace(/[^a-zA-Z0-9]/g,'').toUpperCase().slice(0,10);
+    if (usi.value.length === 0){
+      usi.className = 'mono'; usiHint.textContent = '10 characters — letters and numbers'; usiHint.className = 'hint';
+    } else if (usi.value.length === 10){
+      usi.className = 'mono ok'; usiHint.textContent = '✓ Format looks right — staff will verify it'; usiHint.className = 'hint';
+    } else {
+      usi.className = 'mono bad';
+      usiHint.textContent = `${usi.value.length}/10 characters`; usiHint.className = 'hint err';
+    }
+  });
+
+  /* ---- sign-off logic ---- */
+  const steps = document.querySelectorAll('.step');
+  const total = steps.length;
+  const barFill = document.getElementById('barFill');
+  const barCount = document.getElementById('barCount');
+  const barLabel = document.getElementById('barLabel');
+  const headCount = document.getElementById('headCount');
+  const finish = document.getElementById('finish');
+  const finishTitle = document.getElementById('finishTitle');
+
+  function refresh(){
+    const signed = document.querySelectorAll('.step.signed').length;
+    barCount.textContent = signed;
+    headCount.textContent = signed;
+    barFill.style.width = (signed/total*100) + '%';
+    barFill.classList.toggle('done', signed === total);
+    barLabel.textContent = signed === 0 ? 'Not started'
+                        : signed === total ? 'All steps signed'
+                        : (total - signed) + ' step' + (total-signed===1?'':'s') + ' remaining';
+    if (signed === total){
+      finish.classList.add('complete');
+      finishTitle.textContent = 'Congratulations!';
+      finish.querySelector('p').innerHTML = 'You have <b>officially completed your enrolment</b>. Welcome to KOI Newcastle!';
+    } else {
+      finish.classList.remove('complete');
+      finishTitle.textContent = 'Enrolment incomplete';
+      finish.querySelector('p').innerHTML = 'Make sure <b>ALL steps</b> have been signed off by the relevant staff members.';
+    }
+  }
+
+  steps.forEach(step => {
+    const nameInput = step.querySelector('.staff-name');
+    const signBtn = step.querySelector('.btn.sign');
+    const who = step.querySelector('.who');
+    const undo = step.querySelector('.undo');
+
+    nameInput.addEventListener('input', () => {
+      signBtn.disabled = nameInput.value.trim().length < 2;
+    });
+
+    signBtn.addEventListener('click', () => {
+      const t = new Intl.DateTimeFormat('en-AU',{hour:'2-digit',minute:'2-digit'}).format(new Date());
+      who.textContent = `Signed by ${nameInput.value.trim()} · ${t}`;
+      step.classList.add('signed');
+      refresh();
+    });
+
+    undo.addEventListener('click', () => {
+      step.classList.remove('signed');
+      refresh();
+    });
+  });
+
+  /* ---- save / print ---- */
+  function printWithFilename(){
+    const id = sid.value.trim();
+    const name = document.getElementById('sname').value.trim();
+    const parts = [];
+    if (id) parts.push(id);
+    if (name) parts.push(name);
+    const fname = parts.length ? parts.join(' ') : 'KOI Enrolment Checklist';
+    const original = document.title;
+    document.title = fname;            // Save-as-PDF uses the title as default filename
+    const restore = () => { document.title = original; window.removeEventListener('afterprint', restore); };
+    window.addEventListener('afterprint', restore);
+    window.print();
+  }
+  document.getElementById('saveBtn').addEventListener('click', () => {
+    if (!sid.value.trim() || sid.value.trim().length !== 8 || !document.getElementById('sname').value.trim()){
+      if (!confirm('Student ID (8 digits) or student name is missing — the saved PDF will not be named correctly.\n\nSave anyway?')) return;
+    }
+    printWithFilename();
+  });
+
+  /* ---- reset for next student ---- */
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    if (!confirm('Reset the whole checklist for the next student?')) return;
+    steps.forEach(s => {
+      s.classList.remove('signed');
+      s.querySelector('.staff-name').value = '';
+      s.querySelector('.btn.sign').disabled = true;
+    });
+    ['sid','sname','course','usi'].forEach(id => {
+      const el = document.getElementById(id);
+      el.value = ''; el.className = el.classList.contains('mono') || id==='sid' || id==='usi' ? 'mono' : '';
+    });
+    sidHint.textContent = 'Exactly 8 digits'; sidHint.className = 'hint';
+    usiHint.textContent = '10 characters — letters and numbers'; usiHint.className = 'hint';
+    refresh();
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+
+  refresh();
+})();
+</script>
+
+</body>
+</html>
